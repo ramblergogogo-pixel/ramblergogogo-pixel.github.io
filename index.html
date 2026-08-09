@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#0b0d12" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="三分化训练" />
+  <title>三分化训练计划</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <style>
+    :root{
+      --bg:#0b0d12; --card:#141821; --card2:#1a1f2b; --text:#f5f7fb; --muted:#9ba6b7;
+      --line:#262d3a; --accent:#8bf0a5; --accent2:#78a8ff; --warn:#ffd36a; --danger:#ff8d8d;
+      --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.22);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+    body{min-height:100vh;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:720px;margin:auto}
+    header{padding:calc(18px + env(safe-area-inset-top)) 18px 10px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 76%,rgba(11,13,18,0));z-index:20}
+    .titleRow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    h1{font-size:24px;margin:0 0 4px;letter-spacing:.2px}
+    .sub{font-size:13px;color:var(--muted)}
+    .badge{padding:8px 10px;border-radius:14px;background:var(--card2);font-size:12px;color:var(--accent);white-space:nowrap;border:1px solid var(--line)}
+    main{padding:8px 14px 24px}
+    .page{display:none}.page.active{display:block}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .card{background:linear-gradient(180deg,var(--card),#11151d);border:1px solid var(--line);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);margin-bottom:12px}
+    .card h2,.card h3{margin:0 0 9px}.card h2{font-size:18px}.card h3{font-size:16px}
+    .metric{font-size:28px;font-weight:800;line-height:1.1}.metric small{font-size:13px;font-weight:600;color:var(--muted)}
+    .label{font-size:12px;color:var(--muted);margin-bottom:4px}
+    .muted{color:var(--muted)} .tiny{font-size:12px;color:var(--muted);line-height:1.55}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#1d2430;border:1px solid var(--line);font-size:12px;margin:3px 5px 3px 0}
+    .green{color:var(--accent)} .blue{color:var(--accent2)} .yellow{color:var(--warn)} .red{color:var(--danger)}
+    .btn{border:1px solid var(--line);background:var(--card2);color:var(--text);padding:11px 13px;border-radius:13px;font-weight:700}
+    .btn.primary{background:var(--accent);border-color:transparent;color:#102016}
+    .btn.ghost{background:transparent}
+    .btn.small{padding:8px 10px;font-size:13px}
+    .btnRow{display:flex;gap:8px;flex-wrap:wrap}
+    .seg{display:flex;background:#0e1219;border:1px solid var(--line);padding:4px;border-radius:14px;gap:4px;margin:10px 0 12px}
+    .seg button{flex:1;border:0;background:transparent;color:var(--muted);border-radius:10px;padding:9px 8px;font-weight:700}
+    .seg button.active{background:var(--card2);color:var(--text)}
+    .exercise{padding:12px 0;border-top:1px solid var(--line)}
+    .exercise:first-of-type{border-top:0}
+    .exHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .exName{font-weight:800}.exMeta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .setRow{display:grid;grid-template-columns:36px 1fr 88px 50px;gap:7px;align-items:center;margin-top:8px}
+    .setRow input[type="number"]{width:100%;background:#0f141c;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 8px}
+    .check{appearance:none;width:26px;height:26px;border:2px solid #465065;border-radius:8px;display:grid;place-content:center}
+    .check:checked{background:var(--accent);border-color:var(--accent)}
+    .check:checked:after{content:"✓";color:#0a180e;font-weight:900}
+    .warm{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px dashed var(--line)}
+    .warm:first-of-type{border-top:0}.warmNum{width:28px;height:28px;border-radius:9px;background:#292f3c;display:grid;place-items:center;font-weight:800;font-size:12px}
+    .macro{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    .macro>div{background:#0f141b;border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center}
+    .macro b{display:block;font-size:19px}.macro span{font-size:10px;color:var(--muted)}
+    .notice{padding:11px 12px;border-radius:14px;background:#231f14;border:1px solid #4b4021;color:#ffe4a3;font-size:12px;line-height:1.55}
+    .dangerNotice{padding:11px 12px;border-radius:14px;background:#26181a;border:1px solid #563038;color:#ffc6c6;font-size:12px;line-height:1.55}
+    .progressBar{height:9px;background:#0f141b;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+    .progressBar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{color:var(--muted);font-weight:700}
+    tr.current{background:#182219}
+    .field{margin-bottom:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .field input,.field select,.field textarea{width:100%;background:#0f141c;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px}
+    textarea{min-height:90px;resize:vertical}
+    .weightList{display:flex;flex-direction:column;gap:7px}
+    .weightItem{display:flex;justify-content:space-between;align-items:center;padding:10px 11px;background:#0f141b;border:1px solid var(--line);border-radius:12px}
+    .timerFloat{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:50;background:#111720;border:1px solid var(--line);border-radius:17px;padding:10px 12px;box-shadow:var(--shadow);display:none;min-width:118px}
+    .timerFloat strong{font-size:24px}
+    nav{position:fixed;left:0;right:0;bottom:0;background:rgba(14,17,23,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:flex;z-index:40}
+    nav button{flex:1;background:transparent;border:0;color:#7f8999;padding:6px 2px;font-size:10px}
+    nav button b{display:block;font-size:20px;line-height:1.15;margin-bottom:2px}
+    nav button.active{color:var(--accent)}
+    .sectionTitle{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px}
+    .sectionTitle h2{font-size:18px;margin:0}
+    .kicker{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent)}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+    .empty{padding:26px 12px;text-align:center;color:var(--muted)}
+    .mono{font-variant-numeric:tabular-nums}
+    @media (max-width:390px){.setRow{grid-template-columns:32px 1fr 74px 46px}.macro{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="titleRow">
+      <div>
+        <div class="kicker">凯圣王三分化 · 手机版</div>
+        <h1>训练 & 碳循环</h1>
+        <div class="sub" id="profileLine">184 cm · 83.5 kg</div>
+      </div>
+      <div class="badge" id="weekBadge">第 1 周</div>
+    </div>
+  </header>
+
+  <main>
+    <section id="page-home" class="page active"></section>
+    <section id="page-workout" class="page"></section>
+    <section id="page-diet" class="page"></section>
+    <section id="page-progress" class="page"></section>
+    <section id="page-log" class="page"></section>
+    <section id="page-settings" class="page"></section>
+  </main>
+</div>
+
+<div class="timerFloat" id="timerFloat">
+  <div class="tiny">组间休息</div>
+  <strong id="timerText" class="mono">01:30</strong>
+  <div class="btnRow" style="margin-top:6px">
+    <button class="btn small" onclick="stopTimer()">停止</button>
+  </div>
+</div>
+
+<nav>
+  <button data-page="home" class="active"><b>⌂</b>今天</button>
+  <button data-page="workout"><b>🏋️</b>训练</button>
+  <button data-page="diet"><b>🥣</b>饮食</button>
+  <button data-page="progress"><b>↗</b>进阶</button>
+  <button data-page="log"><b>✓</b>记录</button>
+  <button data-page="settings"><b>⚙</b>设置</button>
+</nav>
+
+<script>
+const benchWeeks = {
+  1:[15,12,10,8], 2:[15,12,8,8], 3:[15,8,8,8], 4:[15,8,8,8,8], 5:[15,8,8,8,8],
+  6:[15,6,6], 7:[15,6,6,6], 8:[15,6,6,6,6], 9:[15,5,5], 10:[15,5,5,5], 11:[15,5,5,5,5]
+};
+const triWeeks = {
+  1:[15,15,15,15],2:[15,15,15,12],3:[15,15,12,12],4:[15,12,12,12],5:[12,12,12,12],
+  6:[12,12,12,12],7:[12,12,12,12],8:[12,12,12,12],9:[12,12,12,12],10:[12,12,12,12],11:[12,12,12,12]
+};
+const workouts = {
+  A:{
+    name:"胸 · 三角肌中束 · 三头", short:"胸日", color:"🟠",
+    warmups:[
+      ["弹力带绕肩","2 × 10","前后算1次；身体中立，肩胛保持稳定"],
+      ["弹力带扩胸","2 × 10","肩胛稳定，向两端水平拉开"],
+      ["小龙门架平推","2 × 10","偏激活；滑轮与肩平行，平行向前发力"]
+    ],
+    exercises:[
+      {id:"bench",name:"杠铃平板卧推",dynamic:"bench",rpe:"RPE 8",rest:180,note:"第1个15次为热身/引导组；按周进阶。"},
+      {id:"incline",name:"哑铃上斜卧推",sets:[12,12,12,12],rpe:"RPE 8 → 9",rest:150,note:"第1周全程RPE8；第2周最后1组RPE9；第3周起最后1组可到RPE9–9.5。"},
+      {id:"dips",name:"双杠臂屈伸（可退阶）",sets:[12,12,12,12],rpe:"可接近力竭",rest:120,note:"动作标准优先；做不到可用助力/弹力带退阶。"},
+      {id:"triext",name:"仰卧臂屈伸",dynamic:"tri",rpe:"RPE 8 → 9",rest:90,note:"按周推进次数；第6周起最后1组可RPE9。"},
+      {id:"yraise",name:"Y字侧平举",sets:["10+10","10+10","10+10"],rpe:"不强制RPE",rest:60,note:"每组先10次，休5秒，再10次；保持控制，不借力。"}
+    ]
+  },
+  B:{
+    name:"背 · 三角肌后束 · 二头", short:"背日", color:"🔵",
+    warmups:[
+      ["靠墙向后推","2 × 15","五指伸直，小臂对抗泡沫轴；吸气肩胛骨向后顶"],
+      ["跪姿肘屈伸","2 × 15","肩胛骨向上顶高后向后推并固定，吸气顶住"],
+      ["站姿肘屈伸","2 × 15","肩胛骨固定，只做肘屈伸"],
+      ["站姿龙门架内旋","2 × 20","滑轮与手腕齐平，大臂外展，轻重量激活"]
+    ],
+    exercises:[
+      {id:"onearm_pulldown",name:"单手钢线下拉",sets:[12,12,"10+5","10+5"],rpe:"前2组RPE8；后2组力竭附近",rest:90,note:"后两组：10次 + 休5秒 + 5次。"},
+      {id:"neutral_pulldown",name:"对握下拉",sets:["8–12","8–12","8–12","8–12"],rpe:"RPE 8",rest:120,note:"优先肩胛下沉与肘向下。"},
+      {id:"onearm_row",name:"单手器械划船",sets:[12,12,"10+5","10+5"],rpe:"前2组RPE8；后2组力竭附近",rest:90,note:"后两组：10次 + 休5秒 + 5次。"},
+      {id:"open_row",name:"坐姿划船开肘 / 海豹划船",sets:["12–15","12–15","12–15","12–15"],rpe:"RPE 8",rest:120,note:"保持躯干稳定，避免腰部借力。"},
+      {id:"cable_curl",name:"钢线弯举",sets:[12,12,12],rpe:"RPE 8",rest:75,note:"上臂尽量固定。"}
+    ]
+  },
+  C:{
+    name:"腿 · 股四 · 腘绳", short:"腿日", color:"🟢",
+    warmups:[
+      ["弹力带扩胸","2 × 10","肩胛保持稳定，水平拉开"],
+      ["弹力带绕肩","2 × 10","前后算1次；不要顶腰低头"],
+      ["墙天使","2 × 力竭","腰背贴墙，小臂尽量贴墙上下移动"],
+      ["肩膀激活","3 × 力竭","轻重量、多次数；以肩部发热和控制感为准"]
+    ],
+    exercises:[
+      {id:"sldl",name:"单腿硬拉",sets:[12,12,12,12],rpe:"RPE 8",rest:120,note:"髋铰链，骨盆稳定。"},
+      {id:"bulgarian",name:"保加利亚深蹲",sets:[10,10,10,10],rpe:"RPE 8",rest:150,note:"前脚稳定，膝盖与脚尖方向一致。"},
+      {id:"frontsquat",name:"颈前深蹲",sets:[15,15,15],rpe:"RPE 8",rest:180,note:"躯干直立，量力选择深度。"},
+      {id:"rdl",name:"罗马尼亚硬拉",sets:[12,12,12],rpe:"RPE 8",rest:150,note:"臀部后移，背部保持中立。"},
+      {id:"backext",name:"山羊挺身",sets:[8,8,8],rpe:"RPE 8",rest:90,note:"从髋部伸展，避免腰椎过伸。"}
+    ]
+  }
+};
+const dietStages = [
+  {from:1,to:11,label:"第1–11天",c:3,p:1.4,fM:[0.4,0.4],fF:[0.5,0.5],high:false},
+  {from:12,to:12,label:"第12天 · 高碳",c:5,p:1.0,fM:[0.4,0.4],fF:[0.5,0.5],high:true},
+  {from:13,to:23,label:"第13–23天",c:2.5,p:1.6,fM:[0.4,0.4],fF:[0.6,0.6],high:false},
+  {from:24,to:24,label:"第24天 · 高碳",c:6,p:1.2,fM:[0.5,0.5],fF:[0.6,0.6],high:true},
+  {from:25,to:34,label:"第25–34天",c:2,p:1.8,fM:[0.5,0.5],fF:[0.6,0.6],high:false},
+  {from:35,to:35,label:"第35天 · 高碳",c:6,p:1.2,fM:[0.5,0.6],fF:[0.5,0.6],high:true},
+  {from:36,to:39,label:"第36–39天",c:2,p:1.8,fM:[0.5,0.6],fF:[0.5,0.6],high:false}
+];
+
+const defaultState = {
+  profile:{height:184,weight:83.5,dietVersion:"male"},
+  plan:{startDate:new Date().toISOString().slice(0,10), dietStart:new Date().toISOString().slice(0,10), week:1, days:{1:"A",3:"B",5:"C"}},
+  weights:{}, completed:{}, weightLogs:[], notes:[], currentWorkout:"A"
+};
+let state = loadState();
+let timerHandle = null, timerEnd = 0;
+
+function loadState(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("fitplan_state")||"null");
+    return mergeDeep(JSON.parse(JSON.stringify(defaultState)), saved||{});
+  }catch(e){return JSON.parse(JSON.stringify(defaultState));}
+}
+function mergeDeep(target, source){
+  if(!source) return target;
+  Object.keys(source).forEach(k=>{
+    if(source[k] && typeof source[k]==="object" && !Array.isArray(source[k])){
+      target[k]=mergeDeep(target[k]||{},source[k]);
+    } else target[k]=source[k];
+  });
+  return target;
+}
+function saveState(){localStorage.setItem("fitplan_state",JSON.stringify(state));}
+function fmt(n){return (Math.round(n*10)/10).toFixed(n<100?1:0)}
+function dateDiff(a,b){
+  const d1=new Date(a+"T12:00:00"), d2=new Date(b+"T12:00:00");
+  return Math.floor((d2-d1)/86400000);
+}
+function cycleDay(){
+  const today=new Date().toISOString().slice(0,10);
+  let d=dateDiff(state.plan.dietStart,today)+1;
+  d=((d-1)%39+39)%39+1;
+  return d;
+}
+function currentDiet(){
+  const d=cycleDay();
+  return dietStages.find(s=>d>=s.from&&d<=s.to)||dietStages[0];
+}
+function macros(){
+  const s=currentDiet(), w=Number(state.profile.weight)||83.5;
+  const fr=state.profile.dietVersion==="female"?s.fF:s.fM;
+  const fatLow=w*fr[0], fatHigh=w*fr[1];
+  const c=w*s.c, p=w*s.p;
+  const kcalLow=c*4+p*4+fatLow*9, kcalHigh=c*4+p*4+fatHigh*9;
+  return {c,p,fatLow,fatHigh,kcalLow,kcalHigh,s};
+}
+function planWeek(){
+  const today=new Date().toISOString().slice(0,10);
+  const diff=Math.max(0,dateDiff(state.plan.startDate,today));
+  const w=Math.min(11,Math.floor(diff/7)+1);
+  return state.plan.weekManual ? Number(state.plan.week)||w : w;
+}
+function dayWorkout(){
+  const dow=new Date().getDay();
+  return state.plan.days[dow]||null;
+}
+function getSets(ex){
+  const w=planWeek();
+  if(ex.dynamic==="bench") return benchWeeks[w]||benchWeeks[11];
+  if(ex.dynamic==="tri") return triWeeks[w]||triWeeks[11];
+  return ex.sets;
+}
+function keyFor(day,exid,i){
+  const d=new Date().toISOString().slice(0,10);
+  return `${d}|${day}|${exid}|${i}`;
+}
+function updateHeader(){
+  document.getElementById("profileLine").textContent=`${state.profile.height} cm · ${state.profile.weight} kg · ${state.profile.dietVersion==="male"?"男生饮食表":"女生饮食表"}`;
+  document.getElementById("weekBadge").textContent=`第 ${planWeek()} 周`;
+}
+function renderHome(){
+  const wId=dayWorkout(), m=macros(), d=cycleDay(), w=planWeek();
+  const page=document.getElementById("page-home");
+  const today = new Date().toLocaleDateString("zh-CN",{month:"long",day:"numeric",weekday:"short"});
+  const workoutCard = wId ? `
+    <div class="card">
+      <div class="label">${today} · 今日训练</div>
+      <h2>${workouts[wId].color} ${workouts[wId].name}</h2>
+      <div class="tiny">${workouts[wId].warmups.length} 个热身 + ${workouts[wId].exercises.length} 个正式动作</div>
+      <div class="btnRow" style="margin-top:12px"><button class="btn primary" onclick="openWorkout('${wId}')">开始训练</button><button class="btn" onclick="startTimer(90)">90秒计时</button></div>
+    </div>` : `
+    <div class="card">
+      <div class="label">${today}</div><h2>恢复 / 可选低强度有氧</h2>
+      <div class="tiny">建议散步、轻松骑车或椭圆机 20–30 分钟，保持能正常说话的强度。若疲劳明显，直接休息。</div>
+    </div>`;
+  page.innerHTML = `
+    ${workoutCard}
+    <div class="grid">
+      <div class="card"><div class="label">训练进度</div><div class="metric">W${w}<small> / 11</small></div><div class="progressBar" style="margin-top:10px"><i style="width:${w/11*100}%"></i></div></div>
+      <div class="card"><div class="label">饮食周期</div><div class="metric">${d}<small> / 39 天</small></div><div class="${m.s.high?'yellow':'green'} tiny" style="margin-top:8px">${m.s.label}</div></div>
+    </div>
+    <div class="card">
+      <div class="sectionTitle"><h2>今日宏量</h2><span class="pill">${m.s.high?"⚡ 高碳日":"碳水渐降"}</span></div>
+      <div class="macro">
+        <div><b>${fmt(m.c)}g</b><span>碳水</span></div>
+        <div><b>${fmt(m.p)}g</b><span>蛋白质</span></div>
+        <div><b>${m.fatLow===m.fatHigh?fmt(m.fatLow):fmt(m.fatLow)+"–"+fmt(m.fatHigh)}g</b><span>脂肪</span></div>
+        <div><b>${Math.round(m.kcalLow)}${Math.round(m.kcalHigh)!==Math.round(m.kcalLow)?"–"+Math.round(m.kcalHigh):""}</b><span>约 kcal</span></div>
+      </div>
+      <div class="tiny" style="margin-top:10px">按 ${state.profile.weight} kg × 原图对应倍数计算。</div>
+    </div>
+    <div class="notice">原图的碳循环属于较激进的减脂模板，尤其部分阶段脂肪和总热量偏低。应用保留原图算法，但不要把它当成医学/营养处方；若出现持续乏力、睡眠变差、训练明显掉速或身体不适，应上调摄入或找专业人士评估。</div>
+  `;
+}
+function renderWorkout(){
+  const page=document.getElementById("page-workout");
+  const cur=state.currentWorkout||"A", w=workouts[cur];
+  let warmHtml=w.warmups.map((x,i)=>`<div class="warm"><div class="warmNum">${i+1}</div><div><b>${x[0]}</b><div class="exMeta">${x[1]} · ${x[2]}</div></div></div>`).join("");
+  let exHtml=w.exercises.map((ex,ei)=>{
+    const sets=getSets(ex);
+    const setRows=sets.map((rep,i)=>{
+      const k=keyFor(cur,ex.id,i), checked=!!state.completed[k];
+      const wt=state.weights[`${cur}|${ex.id}|${i}`] ?? "";
+      return `<div class="setRow">
+        <input class="check" type="checkbox" ${checked?"checked":""} onchange="toggleSet('${k}',this.checked)">
+        <div><b>第${i+1}组</b><div class="tiny">${rep} 次</div></div>
+        <input type="number" inputmode="decimal" placeholder="kg" value="${wt}" onchange="setWeight('${cur}','${ex.id}',${i},this.value)">
+        <button class="btn small" onclick="startTimer(${ex.rest})">${ex.rest>=120?Math.round(ex.rest/60)+"m":ex.rest+"s"}</button>
+      </div>`
+    }).join("");
+    return `<div class="exercise">
+      <div class="exHead"><div><div class="exName">${ei+1}. ${ex.name}</div><div class="exMeta">${ex.rpe} · 建议休息 ${ex.rest} 秒<br>${ex.note}</div></div></div>
+      ${setRows}
+    </div>`;
+  }).join("");
+  page.innerHTML=`
+    <div class="seg">
+      ${["A","B","C"].map(id=>`<button class="${cur===id?"active":""}" onclick="switchWorkout('${id}')">${workouts[id].short}</button>`).join("")}
+    </div>
+    <div class="card">
+      <div class="label">训练前 6–10 分钟</div><h2>${w.color} ${w.name} · 热身</h2>${warmHtml}
+    </div>
+    <div class="card">
+      <div class="sectionTitle"><h2>正式训练 · 第 ${planWeek()} 周</h2><span class="pill">RPE 8 ≈ 还剩2次余力</span></div>
+      ${exHtml}
+    </div>
+    <div class="btnRow"><button class="btn" onclick="startTimer(60)">60秒</button><button class="btn" onclick="startTimer(90)">90秒</button><button class="btn" onclick="startTimer(120)">120秒</button><button class="btn" onclick="startTimer(180)">180秒</button></div>
+  `;
+}
+function renderDiet(){
+  const m=macros(), d=cycleDay();
+  const rows=dietStages.map(s=>{
+    const fr=state.profile.dietVersion==="female"?s.fF:s.fM;
+    const current=d>=s.from&&d<=s.to;
+    return `<tr class="${current?"current":""}"><td>${s.label}</td><td>${s.c}×</td><td>${s.p}×</td><td>${fr[0]===fr[1]?fr[0]+"×":fr[0]+"–"+fr[1]+"×"}</td></tr>`;
+  }).join("");
+  document.getElementById("page-diet").innerHTML=`
+    <div class="card">
+      <div class="sectionTitle"><h2>${m.s.high?"⚡ 高碳日":"🥣 今日饮食"}</h2><span class="pill">周期第 ${d} 天</span></div>
+      <div class="macro">
+        <div><b>${fmt(m.c)}g</b><span>碳水</span></div>
+        <div><b>${fmt(m.p)}g</b><span>蛋白质</span></div>
+        <div><b>${m.fatLow===m.fatHigh?fmt(m.fatLow):fmt(m.fatLow)+"–"+fmt(m.fatHigh)}g</b><span>脂肪</span></div>
+        <div><b>${Math.round(m.kcalLow)}${Math.round(m.kcalHigh)!==Math.round(m.kcalLow)?"–"+Math.round(m.kcalHigh):""}</b><span>约 kcal</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="tiny">当前版本：<b>${state.profile.dietVersion==="male"?"男生版":"女生版"}</b>；体重 ${state.profile.weight} kg。每项 = 体重 × 倍数。</div>
+    </div>
+    <div class="card">
+      <h2>简版饮食结构</h2>
+      <div class="warm"><div class="warmNum">1</div><div><b>每餐：主食 + 蛋白质 + 蔬菜</b><div class="exMeta">先把总量吃够，再优化食材细节。</div></div></div>
+      <div class="warm"><div class="warmNum">2</div><div><b>主食</b><div class="exMeta">米饭 / 面 / 土豆 / 燕麦</div></div></div>
+      <div class="warm"><div class="warmNum">3</div><div><b>蛋白质</b><div class="exMeta">鸡蛋 / 鸡胸 / 牛肉 / 鱼 / 牛奶</div></div></div>
+      <div class="warm"><div class="warmNum">4</div><div><b>加餐</b><div class="exMeta">香蕉、酸奶、面包、蛋白粉等，按当天宏量补齐。</div></div></div>
+      <div class="warm"><div class="warmNum">5</div><div><b>训练后</b><div class="exMeta">可先补蛋白，再正常吃饭；不必卡“黄金30分钟”。</div></div></div>
+    </div>
+    <div class="card"><h2>39天原图周期</h2><table><thead><tr><th>阶段</th><th>碳水</th><th>蛋白</th><th>脂肪</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="dangerNotice">我把原图“1号～次月9号”的顺序整理成连续 39 天周期，避免跨月时应用判断混乱。若你原本就是严格按自然日期执行，可在“设置”里把饮食周期起始日改成你实际开始的那一天。</div>
+  `;
+}
+function renderProgress(){
+  const w=planWeek();
+  const benchRows=Object.keys(benchWeeks).map(k=>`<tr class="${Number(k)===w?"current":""}"><td>第${k}周</td><td>${benchWeeks[k].join(" - ")}</td><td>RPE 8</td></tr>`).join("");
+  const triRows=[1,2,3,4,5,6,7].map(k=>{
+    const r=k<6?"RPE 8":(k===6?"前3组8，末组9":"原图写“前3组8，后2组9”与4组冲突；应用按末组9处理");
+    return `<tr class="${k===w?"current":""}"><td>第${k}周</td><td>${triWeeks[k].join(" - ")}</td><td>${r}</td></tr>`
+  }).join("");
+  document.getElementById("page-progress").innerHTML=`
+    <div class="card">
+      <div class="sectionTitle"><h2>杠铃平板卧推 · 11周</h2><span class="pill">当前 W${w}</span></div>
+      <table><thead><tr><th>周</th><th>组数 × 次数顺序</th><th>强度</th></tr></thead><tbody>${benchRows}</tbody></table>
+      <div class="tiny" style="margin-top:10px">首个15次视为热身/引导组。每组都保持约2次余力；若动作变形，不为了完成表格强行加重量。</div>
+    </div>
+    <div class="card">
+      <h2>哑铃上斜卧推</h2>
+      <table><tbody>
+        <tr><td>第1周</td><td>4 × 12</td><td>全部 RPE8</td></tr>
+        <tr><td>第2周</td><td>4 × 12</td><td>前3组RPE8，末组RPE9</td></tr>
+        <tr><td>第3周</td><td>4 × 12</td><td>原图文字存在“4组却写后2组”的冲突；应用按末组RPE9–9.5处理</td></tr>
+        <tr><td>第4–11周</td><td>4 × 12</td><td>延续第3周规则，完成后再小幅加重</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h2>仰卧臂屈伸</h2>
+      <table><thead><tr><th>周</th><th>次数顺序</th><th>强度</th></tr></thead><tbody>${triRows}</tbody></table>
+      <div class="tiny" style="margin-top:10px">第8–11周原图未给出，应用维持 4 × 12，并把末组控制在RPE9以内。</div>
+    </div>
+    <div class="card">
+      <h2>其他动作怎么加重量</h2>
+      <div class="warm"><div class="warmNum">A</div><div><b>固定次数动作</b><div class="exMeta">所有工作组都完成目标次数，且最高不超过RPE8 → 下次加最小重量（哑铃通常单只+1–2kg；杠铃/器械+2.5–5%）。</div></div></div>
+      <div class="warm"><div class="warmNum">B</div><div><b>8–12 / 12–15 次区间</b><div class="exMeta">先把所有组做到区间上限，再加重量回到区间下限。</div></div></div>
+      <div class="warm"><div class="warmNum">C</div><div><b>两次训练连续掉表现</b><div class="exMeta">先减总组数或减重约5–10%，睡眠和进食恢复后再推。</div></div></div>
+    </div>
+  `;
+}
+function renderLog(){
+  const logs=(state.weightLogs||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const items=logs.length?logs.map((x,i)=>`<div class="weightItem"><div><b>${x.weight} kg</b><div class="tiny">${x.date}</div></div><button class="btn small ghost" onclick="deleteWeight('${x.id}')">删除</button></div>`).join(""):`<div class="empty">还没有体重记录</div>`;
+  const notes=(state.notes||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const noteItems=notes.length?notes.slice(0,12).map(x=>`<div class="weightItem"><div><b>${x.day}</b><div class="tiny">${x.date} · ${x.text||"完成训练"}</div></div></div>`).join(""):`<div class="empty">还没有训练备注</div>`;
+  document.getElementById("page-log").innerHTML=`
+    <div class="card"><h2>记录体重</h2><div class="grid"><div class="field"><label>日期</label><input id="logDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>体重 kg</label><input id="logWeight" type="number" inputmode="decimal" value="${state.profile.weight}" step="0.1"></div></div><button class="btn primary" onclick="addWeight()">保存体重</button></div>
+    <div class="card"><h2>体重历史</h2><div class="weightList">${items}</div></div>
+    <div class="card"><h2>训练备注</h2><div class="field"><label>今天</label><textarea id="noteText" placeholder="例如：卧推80kg，最后一组RPE8；右肩感觉正常。"></textarea></div><div class="btnRow"><button class="btn" onclick="addNote('A')">记胸日</button><button class="btn" onclick="addNote('B')">记背日</button><button class="btn" onclick="addNote('C')">记腿日</button></div></div>
+    <div class="card"><h2>最近备注</h2><div class="weightList">${noteItems}</div></div>
+  `;
+}
+function renderSettings(){
+  const dayOptions=(val)=>`<option value="">休息</option><option value="A" ${val==="A"?"selected":""}>胸日</option><option value="B" ${val==="B"?"selected":""}>背日</option><option value="C" ${val==="C"?"selected":""}>腿日</option>`;
+  document.getElementById("page-settings").innerHTML=`
+    <div class="card">
+      <h2>个人参数</h2>
+      <div class="grid"><div class="field"><label>身高 cm</label><input id="height" type="number" value="${state.profile.height}"></div><div class="field"><label>体重 kg</label><input id="weight" type="number" step="0.1" value="${state.profile.weight}"></div></div>
+      <div class="field"><label>饮食表版本（你未提供性别，所以这里可随时切换）</label><select id="dietVersion"><option value="male" ${state.profile.dietVersion==="male"?"selected":""}>男生版</option><option value="female" ${state.profile.dietVersion==="female"?"selected":""}>女生版</option></select></div>
+      <button class="btn primary" onclick="saveProfile()">保存</button>
+    </div>
+    <div class="card">
+      <h2>计划时间</h2>
+      <div class="field"><label>11周训练计划开始日</label><input id="planStart" type="date" value="${state.plan.startDate}"></div>
+      <div class="field"><label>39天饮食周期开始日</label><input id="dietStart" type="date" value="${state.plan.dietStart}"></div>
+      <div class="field"><label><input type="checkbox" id="weekManual" ${state.plan.weekManual?"checked":""}> 手动指定训练周</label><input id="manualWeek" type="number" min="1" max="11" value="${state.plan.week||1}"></div>
+      <button class="btn primary" onclick="saveDates()">保存</button>
+    </div>
+    <div class="card">
+      <h2>每周训练日</h2>
+      <div class="field"><label>周一</label><select id="d1">${dayOptions(state.plan.days[1])}</select></div>
+      <div class="field"><label>周二</label><select id="d2">${dayOptions(state.plan.days[2])}</select></div>
+      <div class="field"><label>周三</label><select id="d3">${dayOptions(state.plan.days[3])}</select></div>
+      <div class="field"><label>周四</label><select id="d4">${dayOptions(state.plan.days[4])}</select></div>
+      <div class="field"><label>周五</label><select id="d5">${dayOptions(state.plan.days[5])}</select></div>
+      <div class="field"><label>周六</label><select id="d6">${dayOptions(state.plan.days[6])}</select></div>
+      <div class="field"><label>周日</label><select id="d0">${dayOptions(state.plan.days[0])}</select></div>
+      <button class="btn primary" onclick="saveDays()">保存周计划</button>
+    </div>
+    <div class="card">
+      <h2>数据</h2>
+      <div class="btnRow"><button class="btn" onclick="exportData()">导出备份</button><label class="btn">导入备份<input type="file" accept="application/json" style="display:none" onchange="importData(event)"></label><button class="btn ghost red" onclick="resetAll()">清空全部</button></div>
+      <div class="tiny" style="margin-top:10px">所有训练重量、打勾状态、体重和备注只保存在本机浏览器 localStorage 中。</div>
+    </div>
+  `;
+}
+function renderAll(){updateHeader();renderHome();renderWorkout();renderDiet();renderProgress();renderLog();renderSettings();}
+function switchWorkout(id){state.currentWorkout=id;saveState();renderWorkout();}
+function openWorkout(id){state.currentWorkout=id;saveState();showPage("workout");}
+function toggleSet(k,v){state.completed[k]=v;saveState();}
+function setWeight(day,ex,i,v){state.weights[`${day}|${ex}|${i}`]=v;saveState();}
+function startTimer(sec){
+  clearInterval(timerHandle); timerEnd=Date.now()+sec*1000;
+  document.getElementById("timerFloat").style.display="block";
+  tickTimer(); timerHandle=setInterval(tickTimer,250);
+}
+function tickTimer(){
+  let left=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));
+  let m=Math.floor(left/60),s=left%60;
+  document.getElementById("timerText").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  if(left<=0){clearInterval(timerHandle); if(navigator.vibrate) navigator.vibrate([150,80,150]);}
+}
+function stopTimer(){clearInterval(timerHandle);document.getElementById("timerFloat").style.display="none";}
+function saveProfile(){
+  state.profile.height=Number(document.getElementById("height").value)||184;
+  state.profile.weight=Number(document.getElementById("weight").value)||83.5;
+  state.profile.dietVersion=document.getElementById("dietVersion").value;
+  saveState();renderAll();
+}
+function saveDates(){
+  state.plan.startDate=document.getElementById("planStart").value||state.plan.startDate;
+  state.plan.dietStart=document.getElementById("dietStart").value||state.plan.dietStart;
+  state.plan.weekManual=document.getElementById("weekManual").checked;
+  state.plan.week=Math.max(1,Math.min(11,Number(document.getElementById("manualWeek").value)||1));
+  saveState();renderAll();
+}
+function saveDays(){
+  [0,1,2,3,4,5,6].forEach(d=>{
+    const v=document.getElementById("d"+d).value;
+    if(v) state.plan.days[d]=v; else delete state.plan.days[d];
+  });
+  saveState();renderAll();
+}
+function addWeight(){
+  const date=document.getElementById("logDate").value, weight=Number(document.getElementById("logWeight").value);
+  if(!date||!weight) return;
+  state.weightLogs.push({id:Date.now().toString(),date,weight});
+  state.profile.weight=weight; saveState();renderAll();
+}
+function deleteWeight(id){state.weightLogs=state.weightLogs.filter(x=>x.id!==id);saveState();renderLog();}
+function addNote(day){
+  const text=document.getElementById("noteText").value.trim();
+  state.notes.push({id:Date.now().toString(),date:new Date().toISOString().slice(0,10),day:workouts[day].short,text});
+  saveState();renderLog();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fitness-plan-backup.json";a.click();URL.revokeObjectURL(a.href);
+}
+function importData(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{state=mergeDeep(JSON.parse(JSON.stringify(defaultState)),JSON.parse(r.result));saveState();renderAll();alert("导入成功");}catch(e){alert("备份文件格式不正确");}};r.readAsText(f);
+}
+function resetAll(){if(confirm("确定清空所有训练重量、打勾、体重和备注？")){localStorage.removeItem("fitplan_state");state=JSON.parse(JSON.stringify(defaultState));renderAll();}}
+function showPage(name){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+renderAll();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
